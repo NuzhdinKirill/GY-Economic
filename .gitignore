@@ -1,0 +1,16 @@
+# Gradle
+.gradle/
+**/build/
+!**/src/**/build/
+.gradletasknamecache
+**/*.lock
+build/classes/
+**/previous-compilation-data.bin
+**/*.uniqueId*
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/

@@ -1,0 +1,9 @@
+name: GY-Economic
+version: '1.0'
+main: mc.GY
+api-version: '1.21'
+commands:
+  pay:
+  money:
+  rub:
+  rubpay:
