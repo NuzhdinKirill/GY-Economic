@@ -1,4 +1,4 @@
-package mc.util.chat;
+package mc.utilites;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;

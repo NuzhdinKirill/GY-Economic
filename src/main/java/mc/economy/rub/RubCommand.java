@@ -1,7 +1,7 @@
 package mc.economy.rub;
 
 import mc.GY;
-import mc.util.chat.MessageUtil;
+import mc.utilites.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -37,29 +37,29 @@ public class RubCommand implements TabExecutor {
 
     private boolean handlePay(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
+            MessageUtil.sendMessage(sender, "Команду может использовать только игрок.");
             return true;
         }
 
         if (!sender.hasPermission("gy.economy.rub")) {
-            MessageUtil.sendMessage(player, "Нет прав!");
+            MessageUtil.sendMessage(player, "Нет прав");
             return true;
         }
 
         if (args.length != 2) {
-            MessageUtil.sendMessage(player, "Использование: /payrub <игрок> <сумма>");
+            MessageUtil.sendUsageMessage(player, "/rubpay [Игрок] [Сумма]");
             return true;
         }
 
         String targetName = args[0];
-
-        if (targetName.equalsIgnoreCase(sender.getName())) {
+        if (targetName.equalsIgnoreCase(player.getName())) {
             MessageUtil.sendMessage(player, "Нельзя перевести себе");
             return true;
         }
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            MessageUtil.sendMessage(player, "Игрок не найден");
+            MessageUtil.sendUnknownPlayerMessage(player, targetName);
             return true;
         }
 
@@ -67,7 +67,7 @@ public class RubCommand implements TabExecutor {
         try {
             amount = Double.parseDouble(args[1]);
             if (amount <= 0) {
-                MessageUtil.sendMessage(player, "Сумма должно быть больше 0");
+                MessageUtil.sendMessage(player, "Сумма должна быть больше 0");
                 return true;
             }
         } catch (NumberFormatException e) {
@@ -76,8 +76,8 @@ public class RubCommand implements TabExecutor {
         }
 
         RubDB db = rubSystem.getDatabase();
-
         double balance = db.getBalance(player);
+
         if (balance < amount) {
             MessageUtil.sendMessage(player, "Недостаточно руб");
             return true;
@@ -86,18 +86,19 @@ public class RubCommand implements TabExecutor {
         db.take(player, amount);
         db.add(target, amount);
 
-        MessageUtil.sendMessage(player, "Вы отправили &#30578C" + amount + " &fруб &#30578C" + target.getName());
-        MessageUtil.sendMessage(target, "Вы получили &#30578C" + amount + " &fруб от &#30578C" + player.getName());
+        MessageUtil.sendMessage(player, "Вы отправили &#30578C" + amount + "❖ &fруб игроку &#30578C" + target.getName());
+        MessageUtil.sendMessage(target, "Вы получили &#30578C" + amount + "❖ &fруб от &#30578C" + player.getName());
         return true;
     }
 
     private boolean handleRub(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            MessageUtil.sendMessage(sender, "Использование: /rub <info/take/give/giveall>");
+            MessageUtil.sendUsageMessage(sender, "/rub [info/take/give/giveall]");
             return true;
         }
 
         String sub = args[0].toLowerCase();
+        RubDB db = rubSystem.getDatabase();
 
         if (sub.equals("info") && args.length == 2) {
             if (!sender.hasPermission("gy.economy.admin")) {
@@ -106,15 +107,13 @@ public class RubCommand implements TabExecutor {
             }
 
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
-            RubDB db = rubSystem.getDatabase();
-
             if (!db.hasPlayer(target)) {
-                MessageUtil.sendMessage(sender, "Игрок никогда не заходил на сервер");
+                MessageUtil.sendUnknownPlayerMessage(sender, args[1]);
                 return true;
             }
 
             double balance = db.getBalance(target);
-            MessageUtil.sendMessage(sender, "Баланс &#30578C" + args[1] + " &fсоставляет &#30578C" + balance + " &fруб");
+            MessageUtil.sendMessage(sender, "Баланс игрока &#30578C" + args[1] + " &f: &#30578C" + balance + "❖ &fруб");
             return true;
         }
 
@@ -138,23 +137,22 @@ public class RubCommand implements TabExecutor {
 
             int count = Bukkit.getOnlinePlayers().size();
             if (count == 0) {
-                MessageUtil.sendMessage(sender, "На сервере нет игроков!");
+                MessageUtil.sendMessage(sender, "На сервере нет игроков");
                 return true;
             }
 
-            RubDB db = rubSystem.getDatabase();
             db.giveAllOnline(amount);
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                MessageUtil.sendMessage(onlinePlayer, "Вам выдано &#30578C" + amount + " &fруб!");
+                MessageUtil.sendMessage(onlinePlayer, "Вам выдано &#30578C" + amount + "❖ &fруб");
             }
 
-            MessageUtil.sendMessage(sender, "Выдано &#30578C" + amount + " &fруб &#30578C" + count + " &fигрокам");
+            MessageUtil.sendMessage(sender, "Выдано &#30578C" + amount + "❖ &fруб &#30578C" + count + " &fигрокам");
             return true;
         }
 
         if (args.length != 3) {
-            MessageUtil.sendMessage(sender, "Использование: /rub <info/take/give/giveall>");
+            MessageUtil.sendUsageMessage(sender, "/rub [give/take/set]");
             return true;
         }
 
@@ -168,61 +166,54 @@ public class RubCommand implements TabExecutor {
         }
 
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
-        RubDB db = rubSystem.getDatabase();
-
         if (!db.hasPlayer(target)) {
-            MessageUtil.sendMessage(sender, "Игрок никогда не заходил на сервер");
+            MessageUtil.sendUnknownPlayerMessage(sender, targetName);
             return true;
         }
 
         switch (sub) {
-            case "give":
+            case "give" -> {
                 if (amount <= 0) {
                     MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
                 db.add(target, amount);
-                MessageUtil.sendMessage(sender, "Вы выдали &#30578C" + targetName + "&f: &#30578C" + amount + " &fруб");
-
+                MessageUtil.sendMessage(sender, "Баланс игрока &#30578C" + targetName + " &fпополнен на &#30578C" + amount + "❖ &fруб");
                 if (target instanceof Player targetPlayer && targetPlayer.isOnline()) {
-                    MessageUtil.sendMessage(targetPlayer, "Вам выдали &#30578C" + amount + " &fруб");
+                    MessageUtil.sendMessage(targetPlayer, "Вам выдано &#30578C" + amount + "❖ &fруб");
                 }
-                break;
-
-            case "take":
+            }
+            case "take" -> {
                 if (amount <= 0) {
                     MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
                 double current = db.getBalance(target);
                 if (current < amount) {
-                    MessageUtil.sendMessage(sender, "У игрока недостаточно руб! У него: &#30578C" + current + " &fруб" );
+                    MessageUtil.sendMessage(sender, "Недостаточно руб у игрока. Баланс: &#30578C" + current + "❖ &fруб");
                     return true;
                 }
                 db.take(target, amount);
-                MessageUtil.sendMessage(sender, "Вы забрали у &#30578C" + targetName + "&f: &#30578C" + amount + " &fруб");
-
-                if (target instanceof Player targetPlayer && targetPlayer.isOnline() && sender instanceof Player) {
-                    MessageUtil.sendMessage(targetPlayer, "У вас забрали &#30578C" + amount + " &fруб");
+                MessageUtil.sendMessage(sender, "С баланса игрока &#30578C" + targetName + " списано &#30578C" + amount + "❖ &fруб");
+                if (target instanceof Player targetPlayer && targetPlayer.isOnline()) {
+                    MessageUtil.sendMessage(targetPlayer, "С вашего баланса списано &#30578C" + amount + "❖ &fруб");
                 }
-                break;
-
-            case "set":
+            }
+            case "set" -> {
                 if (amount < 0) {
                     MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
                 db.set(target, amount);
-                MessageUtil.sendMessage(sender, "Вы установили &#30578C" + targetName + "&f: &#30578C" + amount + " &fруб");
-
+                MessageUtil.sendMessage(sender, "Баланс игрока &#30578C" + targetName + " &fустановлен на &#30578C" + amount + "❖ &fруб");
                 if (target instanceof Player targetPlayer && targetPlayer.isOnline()) {
-                    MessageUtil.sendMessage(targetPlayer, "Вам установили &#30578C" + amount + " &fруб");
+                    MessageUtil.sendMessage(targetPlayer, "Ваш баланс установлен на &#30578C" + amount + "❖ &fруб");
                 }
-                break;
-
-            default:
-                MessageUtil.sendMessage(sender, "Использование: /rub <info/take/give/giveall>");
+            }
+            default -> {
+                MessageUtil.sendUsageMessage(sender, "/rub [give/take/set]");
                 return false;
+            }
         }
 
         return true;
@@ -234,9 +225,9 @@ public class RubCommand implements TabExecutor {
         String command = cmd.getName().toLowerCase();
 
         if (args.length == 1) {
-            if (command.equals("payrub") || command.equals("rubpay")) {
+            if (command.equals("rubpay")) {
                 Bukkit.getOnlinePlayers().forEach(p -> {
-                    if (!(sender instanceof Player) || !p.getName().equals(sender.getName())) {
+                    if (!(sender instanceof Player s && p.getName().equalsIgnoreCase(s.getName()))) {
                         completions.add(p.getName());
                     }
                 });
@@ -250,9 +241,7 @@ public class RubCommand implements TabExecutor {
         } else if (args.length == 2 && command.equals("rub")) {
             String sub = args[0].toLowerCase();
             if (sub.equals("give") || sub.equals("take") || sub.equals("set") || sub.equals("info")) {
-                Bukkit.getOnlinePlayers().forEach(p -> {
-                    completions.add(p.getName());
-                });
+                Bukkit.getOnlinePlayers().forEach(p -> completions.add(p.getName()));
             }
         }
 
