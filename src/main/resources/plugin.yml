@@ -2,6 +2,7 @@ name: GY-Economic
 version: '1.0'
 main: mc.GY
 api-version: '1.21'
+authors: [ Gyusik, YouLow_Skill ]
 commands:
   pay:
   money:

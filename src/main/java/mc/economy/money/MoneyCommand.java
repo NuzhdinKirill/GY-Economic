@@ -4,6 +4,7 @@ import mc.GY;
 import mc.utilites.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -37,7 +38,6 @@ public class MoneyCommand implements TabExecutor {
 
     private boolean handlePay(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
-            MessageUtil.sendMessage(sender, "Команду может использовать только игрок.");
             return true;
         }
 
@@ -50,6 +50,7 @@ public class MoneyCommand implements TabExecutor {
             MessageUtil.sendUsageMessage(player, "/pay [Игрок] [Сумма]");
             return true;
         }
+
 
         String targetName = args[0];
         if (targetName.equalsIgnoreCase(player.getName())) {
@@ -80,6 +81,13 @@ public class MoneyCommand implements TabExecutor {
 
         if (balance < amount) {
             MessageUtil.sendMessage(player, "Недостаточно средств");
+            return true;
+        }
+
+        mc.core.GY.refreshPlayerData(target);
+        if (!mc.core.GY.getPlayerData(target).isPayEnabled()) {
+            MessageUtil.sendMessage(sender, "У игрока '&#30578C" + target.getName() + "&f' отключены переводы.");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
             return true;
         }
 

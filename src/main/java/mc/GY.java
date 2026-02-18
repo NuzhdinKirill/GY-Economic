@@ -14,6 +14,7 @@ public final class GY extends JavaPlugin {
     @Getter
     private static RubSystem rubSystem;
 
+
     @Override
     public void onEnable() {
         if (!getDataFolder().exists()) {
