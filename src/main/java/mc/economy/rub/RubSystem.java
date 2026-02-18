@@ -1,11 +1,14 @@
 package mc.economy.rub;
 
+import lombok.Getter;
 import mc.GY;
 import org.bukkit.command.PluginCommand;
 
 public class RubSystem {
     private final GY plugin;
+    @Getter
     private RubDB database;
+    @Getter
     private RubCommand command;
 
     public RubSystem(GY plugin) {
@@ -38,11 +41,4 @@ public class RubSystem {
         }
     }
 
-    public RubDB getDatabase() {
-        return database;
-    }
-
-    public RubCommand getCommand() {
-        return command;
-    }
 }

@@ -1,11 +1,14 @@
 package mc.economy.money;
 
+import lombok.Getter;
 import mc.GY;
 import org.bukkit.command.PluginCommand;
 
 public class MoneySystem {
     private final GY plugin;
+    @Getter
     private MoneyDB database;
+    @Getter
     private MoneyCommand command;
 
     public MoneySystem(GY plugin) {
@@ -38,11 +41,4 @@ public class MoneySystem {
         }
     }
 
-    public MoneyDB getDatabase() {
-        return database;
-    }
-
-    public MoneyCommand getCommand() {
-        return command;
-    }
 }
