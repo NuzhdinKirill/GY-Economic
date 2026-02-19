@@ -68,7 +68,7 @@ public class Placeholders extends PlaceholderExpansion {
 
     private String formatBalance(double value, boolean modern, String currency) {
         if (!modern || value < 1000) {
-            return String.format("%.0f %s", value, currency);
+            return String.format("%.0f%s", value, currency);
         }
 
         if (value < 1_000_000) {
