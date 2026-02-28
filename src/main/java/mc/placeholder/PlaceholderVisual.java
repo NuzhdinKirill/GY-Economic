@@ -9,19 +9,24 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Placeholders extends PlaceholderExpansion {
+/**
+ * @author Gyusik - Я ебанутый помогите!
+ * @since 28.02.2026
+ */
+
+public class PlaceholderVisual extends PlaceholderExpansion {
 
     private final MoneySystem moneySystem;
     private final RubSystem rubSystem;
 
-    public Placeholders(MoneySystem moneySystem, RubSystem rubSystem) {
+    public PlaceholderVisual(MoneySystem moneySystem, RubSystem rubSystem) {
         this.moneySystem = moneySystem;
         this.rubSystem = rubSystem;
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return "gy";
+        return "gyvisual";
     }
 
     @Override
@@ -56,8 +61,7 @@ public class Placeholders extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("money")) {
             double balance = moneySystem.getDatabase().getBalance(offlinePlayer);
             result = formatBalance(balance, modernEco, currencySymbol);
-        }
-        else if (params.equalsIgnoreCase("rub")) {
+        } else if (params.equalsIgnoreCase("rub")) {
             double balance = rubSystem.getDatabase().getBalance(offlinePlayer);
             currencySymbol = "❖";
             result = formatBalance(balance, modernEco, currencySymbol);
@@ -74,12 +78,10 @@ public class Placeholders extends PlaceholderExpansion {
         if (value < 1_000_000) {
             double k = value / 1000.0;
             return formatShort(k, "тыс.");
-        }
-        else if (value < 1_000_000_000L) {
+        } else if (value < 1_000_000_000L) {
             double m = value / 1_000_000.0;
             return formatShort(m, "млн.");
-        }
-        else {
+        } else {
             double b = value / 1_000_000_000.0;
             return formatShort(b, "млрд.");
         }
@@ -90,8 +92,7 @@ public class Placeholders extends PlaceholderExpansion {
 
         if (num >= 10) {
             return String.format("%.0f %s", floored, suffix);
-        }
-        else {
+        } else {
             double withOneDecimal = Math.floor(num * 10) / 10.0;
             if (Math.abs(withOneDecimal - Math.floor(withOneDecimal)) < 0.000001) {
                 return String.format("%.0f %s", withOneDecimal, suffix);

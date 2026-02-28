@@ -4,7 +4,8 @@ import lombok.Getter;
 import mc.economy.money.MoneySystem;
 import mc.economy.rub.RubSystem;
 import mc.north.utilites.chat.MessageUtil;
-import mc.placeholder.Placeholders;
+import mc.placeholder.PlaceholderNumber;
+import mc.placeholder.PlaceholderVisual;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class GY extends JavaPlugin {
@@ -36,8 +37,10 @@ public final class GY extends JavaPlugin {
         msg = new MessageUtil("&#30578C&lɴ&#284C7D&lᴏ&#21416D&lʀ&#19365E&lᴛ&#112B4E&lʜ &8» &f", "&#30578C");
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            Placeholders placeholders = new Placeholders(moneySystem, rubSystem);
+            PlaceholderNumber placeholders = new PlaceholderNumber(moneySystem, rubSystem);
+            PlaceholderVisual placeholderVisual = new PlaceholderVisual(moneySystem, rubSystem);
             placeholders.register();
+            placeholderVisual.register();
         }
 
     }
