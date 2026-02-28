@@ -8,6 +8,7 @@ version = '1.0'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
     maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
@@ -21,8 +22,9 @@ dependencies {
     compileOnly('org.projectlombok:lombok:1.18.38')
     annotationProcessor('org.projectlombok:lombok:1.18.38')
     compileOnly files('libs/placeholderapi-2.11.17.jar')
-    compileOnly files('libs/GY-Core-1.0.0.jar')
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    implementation 'com.github.Gyusik-Inc:GY-API:1.1.1'
+    implementation 'com.github.Gyusik-Inc:GY-Core:1.0.1'
 }
 
 tasks {
@@ -39,10 +41,6 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
-}
-
-jar {
-    destinationDirectory = file('C:/GT/Server 1.21.4/plugins')
 }
 
 tasks.withType(JavaCompile).configureEach {

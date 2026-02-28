@@ -1,7 +1,6 @@
 package mc.economy.money;
 
 import mc.GY;
-import mc.utilites.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
@@ -42,25 +41,25 @@ public class MoneyCommand implements TabExecutor {
         }
 
         if (!sender.hasPermission("gy.economy.money")) {
-            MessageUtil.sendMessage(player, "Нет прав");
+            GY.msg.sendMessage(player, "Нет прав");
             return true;
         }
 
         if (args.length != 2) {
-            MessageUtil.sendUsageMessage(player, "/pay [Игрок] [Сумма]");
+            GY.msg.sendUsageMessage(player, "/pay [Игрок] [Сумма]");
             return true;
         }
 
 
         String targetName = args[0];
         if (targetName.equalsIgnoreCase(player.getName())) {
-            MessageUtil.sendMessage(player, "Нельзя перевести себе");
+            GY.msg.sendMessage(player, "Нельзя перевести себе");
             return true;
         }
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            MessageUtil.sendUnknownPlayerMessage(player, targetName);
+            GY.msg.sendUnknownPlayerMessage(player, targetName);
             return true;
         }
 
@@ -68,11 +67,11 @@ public class MoneyCommand implements TabExecutor {
         try {
             amount = Double.parseDouble(args[1]);
             if (amount <= 0) {
-                MessageUtil.sendMessage(player, "Сумма должна быть больше 0");
+                GY.msg.sendMessage(player, "Сумма должна быть больше 0");
                 return true;
             }
         } catch (NumberFormatException e) {
-            MessageUtil.sendMessage(player, "Неверная сумма");
+            GY.msg.sendMessage(player, "Неверная сумма");
             return true;
         }
 
@@ -80,13 +79,13 @@ public class MoneyCommand implements TabExecutor {
         double balance = db.getBalance(player);
 
         if (balance < amount) {
-            MessageUtil.sendMessage(player, "Недостаточно средств");
+            GY.msg.sendMessage(player, "Недостаточно средств");
             return true;
         }
 
         mc.core.GY.refreshPlayerData(target);
         if (!mc.core.GY.getPlayerData(target).isPayEnabled()) {
-            MessageUtil.sendMessage(sender, "У игрока '&#30578C" + target.getName() + "&f' отключены переводы.");
+            GY.msg.sendMessage(sender, "У игрока '&#30578C" + target.getName() + "&f' отключены переводы.");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
             return true;
         }
@@ -94,14 +93,14 @@ public class MoneyCommand implements TabExecutor {
         db.take(player, amount);
         db.add(target, amount);
 
-        MessageUtil.sendMessage(player, "Вы отправили &e" + amount + "$ &fигроку &e" + target.getName());
-        MessageUtil.sendMessage(target, "Вы получили &e" + amount + "$ &fот &e" + player.getName());
+        GY.msg.sendMessage(player, "Вы отправили &e" + amount + "$ &fигроку &e" + target.getName());
+        GY.msg.sendMessage(target, "Вы получили &e" + amount + "$ &fот &e" + player.getName());
         return true;
     }
 
     private boolean handleMoney(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            MessageUtil.sendUsageMessage(sender, "/money [info/take/give/giveall]");
+            GY.msg.sendUsageMessage(sender, "/money [info/take/give/giveall]");
             return true;
         }
 
@@ -110,23 +109,23 @@ public class MoneyCommand implements TabExecutor {
 
         if (sub.equals("info") && args.length == 2) {
             if (!sender.hasPermission("gy.economy.admin")) {
-                MessageUtil.sendMessage(sender, "Нет прав");
+                GY.msg.sendMessage(sender, "Нет прав");
                 return true;
             }
 
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
             if (!db.hasPlayer(target)) {
-                MessageUtil.sendUnknownPlayerMessage(sender, args[1]);
+                GY.msg.sendUnknownPlayerMessage(sender, args[1]);
                 return true;
             }
 
             double balance = db.getBalance(target);
-            MessageUtil.sendMessage(sender, "Баланс &e" + args[1] + " &fсоставляет &e" + balance + "$");
+            GY.msg.sendMessage(sender, "Баланс &e" + args[1] + " &fсоставляет &e" + balance + "$");
             return true;
         }
 
         if (!sender.hasPermission("gy.economy.admin")) {
-            MessageUtil.sendMessage(sender, "Нет прав");
+            GY.msg.sendMessage(sender, "Нет прав");
             return true;
         }
 
@@ -135,26 +134,26 @@ public class MoneyCommand implements TabExecutor {
             try {
                 amount = Double.parseDouble(args[1]);
                 if (amount <= 0) {
-                    MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
+                    GY.msg.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
             } catch (NumberFormatException e) {
-                MessageUtil.sendMessage(sender, "Неверная сумма");
+                GY.msg.sendMessage(sender, "Неверная сумма");
                 return true;
             }
 
             int count = Bukkit.getOnlinePlayers().size();
             if (count == 0) {
-                MessageUtil.sendMessage(sender, "На сервере нет игроков");
+                GY.msg.sendMessage(sender, "На сервере нет игроков");
                 return true;
             }
 
             db.giveAllOnline(amount);
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                MessageUtil.sendMessage(onlinePlayer, "Вам выдано &e" + amount + "$");
+                GY.msg.sendMessage(onlinePlayer, "Вам выдано &e" + amount + "$");
             }
 
-            MessageUtil.sendMessage(sender, "Выдано &e" + amount + "$ &f" + count + " игрокам");
+            GY.msg.sendMessage(sender, "Выдано &e" + amount + "$ &f" + count + " игрокам");
             return true;
         }
 
@@ -165,53 +164,53 @@ public class MoneyCommand implements TabExecutor {
         try {
             amount = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {
-            MessageUtil.sendMessage(sender, "Неверная сумма");
+            GY.msg.sendMessage(sender, "Неверная сумма");
             return true;
         }
 
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (!db.hasPlayer(target)) {
-            MessageUtil.sendUnknownPlayerMessage(sender, targetName);
+            GY.msg.sendUnknownPlayerMessage(sender, targetName);
             return true;
         }
 
         switch (sub) {
             case "give" -> {
                 if (amount <= 0) {
-                    MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
+                    GY.msg.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
                 db.add(target, amount);
-                MessageUtil.sendMessage(sender, "Вы выдали &e" + targetName + "&f: &e" + amount + "$");
+                GY.msg.sendMessage(sender, "Вы выдали &e" + targetName + "&f: &e" + amount + "$");
                 if (target instanceof Player targetPlayer && targetPlayer.isOnline()) {
-                    MessageUtil.sendMessage(targetPlayer, "Вам выдано &e" + amount + "$");
+                    GY.msg.sendMessage(targetPlayer, "Вам выдано &e" + amount + "$");
                 }
             }
             case "take" -> {
                 if (amount <= 0) {
-                    MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
+                    GY.msg.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
                 double current = db.getBalance(target);
                 if (current < amount) {
-                    MessageUtil.sendMessage(sender, "Недостаточно средств у игрока. Баланс: &e" + current + "$");
+                    GY.msg.sendMessage(sender, "Недостаточно средств у игрока. Баланс: &e" + current + "$");
                     return true;
                 }
                 db.take(target, amount);
-                MessageUtil.sendMessage(sender, "Вы забрали у &e" + targetName + "&f: &e" + amount + "$");
+                GY.msg.sendMessage(sender, "Вы забрали у &e" + targetName + "&f: &e" + amount + "$");
                 if (target instanceof Player targetPlayer && targetPlayer.isOnline()) {
-                    MessageUtil.sendMessage(targetPlayer, "У вас забрали &e" + amount + "$");
+                    GY.msg.sendMessage(targetPlayer, "У вас забрали &e" + amount + "$");
                 }
             }
             case "set" -> {
                 if (amount < 0) {
-                    MessageUtil.sendMessage(sender, "Сумма должна быть больше 0");
+                    GY.msg.sendMessage(sender, "Сумма должна быть больше 0");
                     return true;
                 }
                 db.set(target, amount);
-                MessageUtil.sendMessage(sender, "Вы установили &e" + targetName + "&f: &e" + amount + "$");
+                GY.msg.sendMessage(sender, "Вы установили &e" + targetName + "&f: &e" + amount + "$");
                 if (target instanceof Player targetPlayer && targetPlayer.isOnline()) {
-                    MessageUtil.sendMessage(targetPlayer, "Ваш баланс установлен на &e" + amount + "$");
+                    GY.msg.sendMessage(targetPlayer, "Ваш баланс установлен на &e" + amount + "$");
                 }
             }
             default -> {
